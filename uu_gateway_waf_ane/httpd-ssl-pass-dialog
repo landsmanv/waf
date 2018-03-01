@@ -1,0 +1,7 @@
+#!/bin/bash
+case $1 in
+  *.plus4u.net*)
+    echo "coolpassword"
+  ;;
+esac
+

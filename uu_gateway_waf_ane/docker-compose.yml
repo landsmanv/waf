@@ -1,0 +1,51 @@
+version: '3.4'
+services:
+  uu_logstore-collector:
+    network_mode: "bridge"
+    image: h-ehqswb38.rg-euc1irrg.uu-os8-dckimgrepo.eu-c-1.cloud.plus4u.net:5000/uu_logstore-collector:latest
+    container_name: uu_logstore-collector
+    restart: always
+    ports:
+      - 24224:24224
+    environment:
+      - UU_LOGSTORE_GRAYLOG_HOST=h-gr4yl0g0.rg-l06570r3.ls.eu-n-1.cloud.plus4u.net
+      - UU_LOGSTORE_GRAYLOG_PORT=12201
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
+  uu_gw_waf_ane_0001:
+    network_mode: "host"
+    privileged: true
+    image: h-ehqswb38.rg-euc1irrg.uu-os8-dckimgrepo.eu-c-1.cloud.plus4u.net:5000/uu_gateway_waf_ane:1.0.0
+    container_name: uu_gw_waf_ane_0001
+    ports:
+      - 443:443
+      - 80:80
+    depends_on:
+      - uu_logstore-collector
+    volumes:
+      - mlog2waffle_data:/var/log/mlog2waffle
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.uu_gw_waf_ane_0001
+  mlog2waffle:
+    network_mode: "bridge"
+    image: h-ehqswb38.rg-euc1irrg.uu-os8-dckimgrepo.eu-c-1.cloud.plus4u.net:5000/mlog2waffle:0.6.4
+    container_name: mlog2waffle
+    depends_on:
+      - uu_logstore-collector
+    environment:
+      CONSOLE_URI_PARAM: "http://10.254.2.6/controller/"
+      CONSOLE_USERNAME_PARAM: "h-g4t3waf1"
+      CONSOLE_PASSWORD_PARAM: "cool_password"
+      DEBUG_PARAM: "FALSE"
+    volumes:
+      - mlog2waffle_data:/var/log/mlog2waffle
+volumes:
+  mlog2waffle_data:
