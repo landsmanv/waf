@@ -23,6 +23,7 @@ RUN chmod +x /usr/libexec/httpd-ssl-pass-dialog &&\
     ln -s /usr/share/zoneinfo/Europe/Prague /etc/localtime
 
 RUN ln -s /dev/stdout /etc/httpd/logs/stdout.log &&\
+    ln -s /dev/stdout /etc/httpd/logs/access.log &&\
     ln -s /dev/stdout /etc/httpd/logs/error_log
 
 CMD ["/start.sh"]
